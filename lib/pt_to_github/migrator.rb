@@ -23,13 +23,20 @@ module PtToGithub
           next
         end
 
+        attempts = 0
         begin
           handle_story(story)
-          # TODO: Experiment with handling rate limiting
-          sleep 3
+          attempts = 0
+          sleep 1
         rescue => e
-          binding.break
-          raise
+          attempts += 1
+          if e.class == Octokit::TooManyRequests
+            time_delay = [(2 ** attempts), 600].min
+            puts "Too many requests - will try again in #{time_delay} seconds"
+            sleep time_delay
+            retry if attempts <= 20
+          end
+          raise e
         end
 
         @handled_ids << story.id
