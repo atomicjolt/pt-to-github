@@ -3,6 +3,7 @@
 require "bundler/setup"
 require "octokit"
 require "pathname"
+require "yaml"
 
 require "pt_to_github"
 
@@ -22,9 +23,7 @@ client = Octokit::Client.new(access_token: ENV["GITHUB_ACCESS_TOKEN"])
 # A map of name in PT to github usernames.
 # It'll try and assign the issue to the github user
 # if it finds a match to the owners in PT.
-user_map = {
-  "Sean Collings" => "seanrcollings",
-}
+user_map = YAML.load_file("user_map.yml")
 
 migrator = PtToGithub::Migrator.new(
   path: csv_path,

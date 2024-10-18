@@ -6,7 +6,10 @@ module PtToGithub
     end
 
     def method_missing(method_name, *args, &block)
-      if @row.key?(method_name)
+      if method_name.to_s.end_with?('=')
+        attribute_name = method_name.to_s.chop.to_sym
+        @row[attribute_name] = args.first
+      elsif @row.key?(method_name)
         @row[method_name]
       else
         super
@@ -14,7 +17,7 @@ module PtToGithub
     end
 
     def description
-      begin
+      @description ||= begin
         description = "
   This issue was imported from Pivotal Tracker.
 
