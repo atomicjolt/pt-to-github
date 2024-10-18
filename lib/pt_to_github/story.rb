@@ -17,7 +17,7 @@ module PtToGithub
     end
 
     def description
-      begin
+      @description ||= begin
         description = "
   This issue was imported from Pivotal Tracker.
 
