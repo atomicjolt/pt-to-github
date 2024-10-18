@@ -35,6 +35,11 @@ module PtToGithub
             puts "Too many requests - will try again in #{time_delay} seconds"
             sleep time_delay
             retry if attempts <= 20
+          elsif e.class == Octokit::UnprocessableEntity && e.detailed_message.match?("422 - Validation Failed")
+            value = JSON.parse(e.response_body)["errors"][0]["value"]
+            puts "The mapped user (#{value}) doesn't have access to the repository. Removing that person."
+            story.owned_by -= [@user_map.key(value)]
+            retry if attempts <= 10
           end
           raise e
         end
