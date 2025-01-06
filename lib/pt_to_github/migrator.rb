@@ -23,13 +23,25 @@ module PtToGithub
           next
         end
 
+        attempts = 0
         begin
           handle_story(story)
-          # TODO: Experiment with handling rate limiting
-          sleep 3
+          attempts = 0
+          sleep 1
         rescue => e
-          binding.break
-          raise
+          attempts += 1
+          if e.class == Octokit::TooManyRequests
+            time_delay = [(2 ** attempts), 600].min
+            puts "Too many requests - will try again in #{time_delay} seconds"
+            sleep time_delay
+            retry if attempts <= 20
+          elsif e.class == Octokit::UnprocessableEntity && e.detailed_message.match?("422 - Validation Failed")
+            value = JSON.parse(e.response_body)["errors"][0]["value"]
+            puts "The mapped user (#{value}) doesn't have access to the repository. Removing that user."
+            story.owned_by -= [@user_map.key(value)]
+            retry if attempts <= 10
+          end
+          raise e
         end
 
         @handled_ids << story.id

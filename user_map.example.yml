@@ -1,0 +1,6 @@
+# A map of name in PT to github usernames.
+# It'll try and assign the issue to the github user
+# if it finds a match to the owners in PT.
+---
+Pivotal Tracker Name: githubusername
+Mickey Mouse: mickeymouse
