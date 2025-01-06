@@ -56,7 +56,7 @@ module PtToGithub
 
     def labels
       @labels ||= begin
-        labels = @row[:labels].split(",").map(&:strip)
+        labels = @row[:labels].split(",").map(&:strip).map { |label| label[0, 50] }
 
         labels << type
       end
